@@ -7,6 +7,8 @@ require('dotenv').config()
 
 const client = require('redis').createClient(process.env.REDIS_URL);
 
+let skipped = 0;
+
 let date = new Date();
 if (date.getDay() == 0 || date.getDay() == 6) date.setDate(date.getDate() + 1);
 console.log(date.toLocaleDateString([], { year: "numeric", month: "2-digit", day: "2-digit" }))
@@ -18,36 +20,52 @@ function getMenu(d, index) {
         .then(response => response.json())
         .then(data => {
             //console.log(data)
-            let html = '<!DOCTYPE html><html><head><meta charset="utf-8"></head><body>';
-            html += `<table><tr>`
             let i = 1;
+            arr1 = []
             if (index == 0) {
-                html += '<tr><th>Päivä</th>'
                 while (true) {
                     let course = data.courses[i]
                     if (course && (course.category != 'From the bean' && course.category != 'From the garden' && course.category != 'Green corner')) {
-                        html += `<th>${course.category}</th>`
+
+                        arr1.push(course.category)
                     } else if (!course) {
                         break
                     }
                     i++
                 }
-                html += '</tr><tr>'
                 i = 1;
+                client.set('courses', JSON.stringify(arr1));
             }
-            html += `<td>${d.toLocaleDateString('fi-FI', { weekday: "short" })}</td>`
-            while (true) {
-                let course = data.courses[i]
-                if (course && (course.category != 'From the bean' && course.category != 'From the garden' && course.category != 'Green corner')) {
-                    html += `<td>${course.title_fi} (${course.properties})</td>`
-                } else if (!course) {
-                    html += '</tr></table>'
-                    break
+
+            arr = []
+            arr.push(d.toLocaleDateString('fi-FI', { weekday: "short" }))
+            if (data.courses) {
+                skipped = 0;
+                while (true) {
+                    let course = data.courses[i]
+                    if (course && (course.category != 'From the bean' && course.category != 'From the garden' && course.category != 'Green corner')) {
+                        arr.push(`${course.title_fi} (${course.properties})`)
+                    } else if (!course) {
+                        break
+                    }
+                    i++
                 }
-                i++
+                client.set(dParse, JSON.stringify(arr));
+            } else {
+                skipped++;
+                if (skipped >= 3){
+                    return true
+                }
             }
-            html += '</body></html>'
-            client.set(dParse, JSON.stringify(html));
+        })
+        .then((a) => {
+            if (index < 20 && !a) {
+                d.setDate(date.getDate() + 1)
+                while (date.getDay() == 0 || date.getDay() == 6) {
+                    d.setDate(date.getDate() + 1)
+                }
+                getMenu(d, index + 1)
+            }
         })
         .catch(err => {
             console.log(err)
@@ -55,6 +73,14 @@ function getMenu(d, index) {
 }
 
 app.get('/', function (req, res) {
+    client.keys('*', function (err, keys) {
+        if (err) return console.log(err);
+
+        keys.sort()
+        for (var i = 0, len = keys.length; i < len; i++) {
+            console.log(keys[i]);
+        }
+    });
     client.get("2020-02-10", function (err, reply) {
         res.send(reply)
     });
