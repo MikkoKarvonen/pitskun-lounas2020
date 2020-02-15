@@ -8,10 +8,14 @@ require('dotenv').config()
 const client = require('redis').createClient(process.env.REDIS_URL);
 
 let skipped = 0;
+let courses = []
+let dayData = []
+let html = ''
 
 let date = new Date();
-if (date.getDay() == 0 || date.getDay() == 6) date.setDate(date.getDate() + 1);
-console.log(date.toLocaleDateString([], { year: "numeric", month: "2-digit", day: "2-digit" }))
+while (date.getDay() == 0 || date.getDay() == 6) {
+    date.setDate(date.getDate() + 1)
+}
 getMenu(date, 0)
 
 function getMenu(d, index) {
@@ -19,7 +23,6 @@ function getMenu(d, index) {
     fetch(`https://www.sodexo.fi/ruokalistat/output/daily_json/156/${dParse}`)
         .then(response => response.json())
         .then(data => {
-            //console.log(data)
             let i = 1;
             arr1 = []
             if (index == 0) {
@@ -35,11 +38,15 @@ function getMenu(d, index) {
                 }
                 i = 1;
                 client.set('courses', JSON.stringify(arr1));
+                courses = arr1;
             }
 
-            arr = []
-            arr.push(d.toLocaleDateString('fi-FI', { weekday: "short" }))
             if (data.courses) {
+                obj = {}
+                arr = []
+                obj.day = d.toLocaleDateString('fi-FI', { weekday: "short" })
+                obj.date = d.getDay()
+                obj.week = getWeekNumber(d)
                 skipped = 0;
                 while (true) {
                     let course = data.courses[i]
@@ -51,6 +58,8 @@ function getMenu(d, index) {
                     i++
                 }
                 client.set(dParse, JSON.stringify(arr));
+                obj.meals = arr
+                dayData.push(obj)
             } else {
                 skipped++;
                 if (skipped >= 3){
@@ -65,6 +74,26 @@ function getMenu(d, index) {
                     d.setDate(date.getDate() + 1)
                 }
                 getMenu(d, index + 1)
+            } else {
+                html += '<table><tr><td></td>'
+                courses.map(a => {
+                    html += `<th>${a}</th>`
+                })
+                html += '</tr>'
+                let lastDay = 999;
+                dayData.map(a => {
+                    if (lastDay > a.date) {
+                        html += `<tr><th colspan="6">Viikko ${a.week}</th><tr>`
+                    }
+                    lastDay = a.date
+                    html += `<tr><th>${a.day}</th>`
+                    a.meals.map(b => {
+                        html += `<td>${b}</td>`
+                    })
+                    html += `</tr>`
+                })
+
+                html += '</table>'
             }
         })
         .catch(err => {
@@ -72,19 +101,17 @@ function getMenu(d, index) {
         })
 }
 
-app.get('/', function (req, res) {
-    client.keys('*', function (err, keys) {
-        if (err) return console.log(err);
+function getWeekNumber(d) {
+    d = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
+    d.setUTCDate(d.getUTCDate() + 4 - (d.getUTCDay()||7));
+    var yearStart = new Date(Date.UTC(d.getUTCFullYear(),0,1));
+    var weekNo = Math.ceil(( ( (d - yearStart) / 86400000) + 1)/7);
+    return weekNo;
+}
 
-        keys.sort()
-        for (var i = 0, len = keys.length; i < len; i++) {
-            console.log(keys[i]);
-        }
-    });
-    client.get("2020-02-10", function (err, reply) {
-        res.send(reply)
-    });
-});
+app.get('/', function (req, res) {
+    res.send(html)
+})
 
 app.listen(port, function () {
     console.log(`App listening on port ${port}`);
