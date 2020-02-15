@@ -1,11 +1,8 @@
 const express = require('express');
 const port = process.env.PORT || 3000;
 const app = express();
-const redis = require("redis");
 const fetch = require('node-fetch');
 require('dotenv').config()
-
-const client = require('redis').createClient(process.env.REDIS_URL);
 
 let skipped = 0;
 let courses = []
@@ -43,7 +40,6 @@ function getMenu(d, index) {
                     i++
                 }
                 i = 1;
-                client.set('courses', JSON.stringify(arr1));
                 courses = arr1;
             }
 
@@ -63,7 +59,6 @@ function getMenu(d, index) {
                     }
                     i++
                 }
-                client.set(dParse, JSON.stringify(arr));
                 obj.meals = arr
                 dayData.push(obj)
             } else {
