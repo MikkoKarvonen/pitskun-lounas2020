@@ -62,7 +62,7 @@ function getMenu(d, index) {
                 dayData.push(obj)
             } else {
                 skipped++;
-                if (skipped >= 3){
+                if (skipped >= 3) {
                     return true
                 }
             }
@@ -75,7 +75,57 @@ function getMenu(d, index) {
                 }
                 getMenu(d, index + 1)
             } else {
-                html += '<table><tr><td></td>'
+                html += `
+                <head>
+                    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                </head>
+                <style>
+                html, body{
+                    background: #F7EBEC;
+                    font-family: sans-serif;
+                    color: #1D1E2C;
+                    overflow: autoa;
+                }
+                table {
+                    padding: 15px;
+                    border-spacing: 10px;
+                    border-collapse: separate;
+                }
+                th, .day{
+                    font-size: 22px;
+                    font-weight: 700;
+                }
+                th, .day, td{
+                    background: #F7EBEC;
+                    padding: 10px;
+                    display: flexx;
+                    justify-content: centexr;
+                    text-align: center;
+                    align-items: centerx;
+                    box-shadow: -2px -2px 5px rgba(255, 255, 255, 1),
+                        3px 3px 5px rgba(0, 0, 0, 0.1);
+                    border-radius: 10px;
+                }
+                td {
+                    box-shadow: inset -2px -2px 5px rgba(255, 255, 255, 1),
+                        inset 3px 3px 5px rgba(0, 0, 0, 0.1);
+                    text-shadow: 1px 1px 3px #ccbabb;
+                    font-weight: 500;
+                }
+                .none{
+                    box-shadow: none;
+                }
+                .badge{
+                    width: 40px;
+                    heigth: 40px;
+                    border-radius: 100px;
+                }
+                .bottom{
+                    display: flex;
+                    justify-content: center;
+                }
+                </style>
+                <table><tr><td class="none"></td>`
                 courses.map(a => {
                     html += `<th>${a}</th>`
                 })
@@ -83,17 +133,23 @@ function getMenu(d, index) {
                 let lastDay = 999;
                 dayData.map(a => {
                     if (lastDay > a.date) {
-                        html += `<tr><th colspan="6">Viikko ${a.week}</th><tr>`
+                        html += `<tr><th colspan="6" class="day">Viikko ${a.week}</th>`
                     }
                     lastDay = a.date
-                    html += `<tr><th>${a.day}</th>`
+                    html += `<tr><th class="day">${a.day}</th>`
                     a.meals.map(b => {
                         html += `<td>${b}</td>`
                     })
                     html += `</tr>`
                 })
 
-                html += '</table>'
+                html += `
+                </table>
+                <div class="bottom">
+                    <div class="day badge">
+                        <a href="https://github.com/MikkoKarvonen/pitskun-lounas2020">{}</a>
+                    </div>
+                </div>`
             }
         })
         .catch(err => {
@@ -103,9 +159,9 @@ function getMenu(d, index) {
 
 function getWeekNumber(d) {
     d = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
-    d.setUTCDate(d.getUTCDate() + 4 - (d.getUTCDay()||7));
-    var yearStart = new Date(Date.UTC(d.getUTCFullYear(),0,1));
-    var weekNo = Math.ceil(( ( (d - yearStart) / 86400000) + 1)/7);
+    d.setUTCDate(d.getUTCDate() + 4 - (d.getUTCDay() || 7));
+    var yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
+    var weekNo = Math.ceil((((d - yearStart) / 86400000) + 1) / 7);
     return weekNo;
 }
 
