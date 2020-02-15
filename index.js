@@ -17,6 +17,12 @@ while (date.getDay() == 0 || date.getDay() == 6) {
     date.setDate(date.getDate() + 1)
 }
 getMenu(date, 0)
+var dayInMilliseconds = 1000 * 60 * 60 * 24;
+setInterval(function() {
+    console.log(`Fetch data (${new Date()})`)
+    html = ``
+    getMenu(date, 0)
+},dayInMilliseconds );
 
 function getMenu(d, index) {
     dParse = d.toLocaleDateString([], { year: "numeric", month: "2-digit", day: "2-digit" })
