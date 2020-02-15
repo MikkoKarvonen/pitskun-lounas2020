@@ -22,7 +22,7 @@ setInterval(function() {
 },dayInMilliseconds );
 
 function getMenu(d, index) {
-    dParse = d.toLocaleDateString(["fi-FI"], { year: "numeric", month: "2-digit", day: "2-digit" })
+    dParse = d.toISOString().split('T')[0]
     fetch(`https://www.sodexo.fi/ruokalistat/output/daily_json/156/${dParse}`)
         .then(response => response.json())
         .then(data => {
