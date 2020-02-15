@@ -124,6 +124,33 @@ function getMenu(d, index) {
                     display: flex;
                     justify-content: center;
                 }
+                .kana{
+                    font-weight: 500;
+                }
+                .rainbow {
+                    text-align: center;
+                    text-decoration: underline;
+                    letter-spacing: 5px;
+                }
+                .rainbow_text_animated {
+                    background: linear-gradient(to right, #6666ff, #0099ff , #00ff00, #ff3399, #6666ff);
+                    -webkit-background-clip: text;
+                    background-clip: text;
+                    color: transparent;
+                    animation: rainbow_animation 6s ease-in-out infinite;
+                    background-size: 400% 100%;
+                    text-shadow: none;
+                }
+                
+                @keyframes rainbow_animation {
+                    0%,100% {
+                        background-position: 0 0;
+                    }
+                
+                    50% {
+                        background-position: 100% 0;
+                    }
+                }
                 </style>
                 <table><tr><td class="none"></td>`
                 courses.map(a => {
@@ -138,7 +165,11 @@ function getMenu(d, index) {
                     lastDay = a.date
                     html += `<tr><th class="day">${a.day}</th>`
                     a.meals.map(b => {
-                        html += `<td>${b}</td>`
+                        if (b.toLowerCase().includes(`kievin kana`)){
+                            html += `<td class="kana"><div class="rainbow rainbow_text_animated">${b}</div></td>`
+                        } else {
+                            html += `<td>${b}</td>`
+                        }
                     })
                     html += `</tr>`
                 })
@@ -146,9 +177,11 @@ function getMenu(d, index) {
                 html += `
                 </table>
                 <div class="bottom">
-                    <div class="day badge">
-                        <a href="https://github.com/MikkoKarvonen/pitskun-lounas2020">{}</a>
-                    </div>
+                    <a href="https://github.com/MikkoKarvonen/pitskun-lounas2020" target="_blank">
+                        <div class="day badge">
+                            {}
+                        </div>
+                    </a>
                 </div>`
             }
         })
