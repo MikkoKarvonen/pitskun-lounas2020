@@ -1,58 +1,13 @@
-html,
-body {
-  background: #f7ebec;
-  font-family: sans-serif;
-  color: #1d1e2c;
-  overflow: auto;
-}
-table {
-  padding: 15px;
-  border-spacing: 10px;
-  border-collapse: separate;
-}
-th,
-.day {
-  font-size: 22px;
-  font-weight: 700;
-}
-th,
-.day,
-td {
-  background: #f7ebec;
-  padding: 10px;
-  display: flexx;
-  justify-content: centexr;
+.center {
   text-align: center;
-  align-items: centerx;
-  box-shadow: -2px -2px 5px rgba(255, 255, 255, 1),
-    3px 3px 5px rgba(0, 0, 0, 0.1);
-  border-radius: 10px;
 }
-td {
-  box-shadow: inset -2px -2px 5px rgba(255, 255, 255, 1),
-    inset 3px 3px 5px rgba(0, 0, 0, 0.1);
-  text-shadow: 1px 1px 3px #ccbabb;
-  font-weight: 500;
-}
-.none {
-  box-shadow: none;
-}
-.badge {
-  width: 40px;
-  heigth: 40px;
-  border-radius: 100px;
-}
-.bottom {
-  display: flex;
-  justify-content: center;
+.topRight {
+  position: absolute;
+  top: 0;
+  right: 0;
 }
 .kana {
   font-weight: 500;
-}
-.rainbow {
-  text-align: center;
-  text-decoration: underline;
-  letter-spacing: 5px;
 }
 .rainbow_text_animated {
   background: linear-gradient(
