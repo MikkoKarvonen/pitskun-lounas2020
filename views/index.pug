@@ -1,0 +1,30 @@
+doctype html
+html(lang="en")
+  head
+    style
+      include ../styles.css
+    title Pitskun Lounas
+    meta(name='viewport', content='width=device-width, initial-scale=1.0')
+  body
+    h1 Pitskun Lounas
+    #container.col
+      table
+        tr
+          th
+          each item in courses
+            th= item
+        each item in dayData
+          tr
+            if item.isFirst
+              th(colspan='6' class='day')= ('Viikko ' + item.week)
+            else 
+              th= (item.day + " " + item.dayNum)
+              each i in item.meals
+                - if (i.includes('Kievin kana'))
+                  td(class='kana')
+                    div(class='rainbow rainbow_text_animated')= i
+                - else
+                  td= i
+      div(class='bottom')
+        a(href='https://github.com/MikkoKarvonen/pitskun-lounas2020' target='_blank')
+          div(class='day badge') {}

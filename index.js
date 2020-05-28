@@ -2,7 +2,9 @@ const express = require("express");
 const port = process.env.PORT || 3000;
 const app = express();
 const fetch = require("node-fetch");
+var path = require("path");
 require("dotenv").config();
+app.set("view engine", "pug");
 
 let skipped = 0;
 let courses = [];
@@ -15,7 +17,7 @@ while (date.getDay() == 0 || date.getDay() == 6) {
 }
 getMenu(date, 0);
 var dayInMilliseconds = 1000 * 60 * 60 * 24;
-setInterval(function() {
+setInterval(function () {
   console.log(`Fetch data (${new Date()})`);
   html = ``;
   getMenu(date, 0);
@@ -24,8 +26,8 @@ setInterval(function() {
 function getMenu(d, index) {
   dParse = d.toISOString().split("T")[0];
   fetch(`https://www.sodexo.fi/ruokalistat/output/daily_json/156/${dParse}`)
-    .then(response => response.json())
-    .then(data => {
+    .then((response) => response.json())
+    .then((data) => {
       let i = 1;
       arr1 = [];
       if (index == 0) {
@@ -49,8 +51,10 @@ function getMenu(d, index) {
       if (data.courses) {
         obj = {};
         arr = [];
-        obj.day = d.toLocaleDateString("fi-FI", { weekday: "short" });
+        let dayTxt = d.toLocaleDateString("fi-FI", { weekday: "short" });
+        obj.day = dayTxt[0].toUpperCase() + dayTxt.slice(1);
         obj.date = d.getDay();
+        obj.dayNum = `${d.getDate()}.${d.getMonth() + 1}.`;
         obj.week = getWeekNumber(d);
         skipped = 0;
         while (true) {
@@ -75,7 +79,7 @@ function getMenu(d, index) {
         }
       }
     })
-    .then(a => {
+    .then((a) => {
       if (index < 20 && !a) {
         d.setDate(date.getDate() + 1);
         while (date.getDay() == 0 || date.getDay() == 6) {
@@ -83,117 +87,16 @@ function getMenu(d, index) {
         }
         getMenu(d, index + 1);
       } else {
-        html += `
-                <head>
-                    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-                </head>
-                <style>
-                html, body{
-                    background: #F7EBEC;
-                    font-family: sans-serif;
-                    color: #1D1E2C;
-                    overflow: autoa;
-                }
-                table {
-                    padding: 15px;
-                    border-spacing: 10px;
-                    border-collapse: separate;
-                }
-                th, .day{
-                    font-size: 22px;
-                    font-weight: 700;
-                }
-                th, .day, td{
-                    background: #F7EBEC;
-                    padding: 10px;
-                    display: flexx;
-                    justify-content: centexr;
-                    text-align: center;
-                    align-items: centerx;
-                    box-shadow: -2px -2px 5px rgba(255, 255, 255, 1),
-                        3px 3px 5px rgba(0, 0, 0, 0.1);
-                    border-radius: 10px;
-                }
-                td {
-                    box-shadow: inset -2px -2px 5px rgba(255, 255, 255, 1),
-                        inset 3px 3px 5px rgba(0, 0, 0, 0.1);
-                    text-shadow: 1px 1px 3px #ccbabb;
-                    font-weight: 500;
-                }
-                .none{
-                    box-shadow: none;
-                }
-                .badge{
-                    width: 40px;
-                    heigth: 40px;
-                    border-radius: 100px;
-                }
-                .bottom{
-                    display: flex;
-                    justify-content: center;
-                }
-                .kana{
-                    font-weight: 500;
-                }
-                .rainbow {
-                    text-align: center;
-                    text-decoration: underline;
-                    letter-spacing: 5px;
-                }
-                .rainbow_text_animated {
-                    background: linear-gradient(to right, #6666ff, #0099ff , #00ff00, #ff3399, #6666ff);
-                    -webkit-background-clip: text;
-                    background-clip: text;
-                    color: transparent;
-                    animation: rainbow_animation 6s ease-in-out infinite;
-                    background-size: 400% 100%;
-                    text-shadow: none;
-                }
-                
-                @keyframes rainbow_animation {
-                    0%,100% {
-                        background-position: 0 0;
-                    }
-                
-                    50% {
-                        background-position: 100% 0;
-                    }
-                }
-                </style>
-                <table><tr><td class="none"></td>`;
-        courses.map(a => {
-          html += `<th>${a}</th>`;
-        });
-        html += "</tr>";
         let lastDay = 999;
-        dayData.map(a => {
+        dayData.map((a) => {
           if (lastDay > a.date) {
-            html += `<tr><th colspan="6" class="day">Viikko ${a.week}</th>`;
+            a.isFirst = true;
           }
           lastDay = a.date;
-          html += `<tr><th class="day">${a.day}</th>`;
-          a.meals.map(b => {
-            if (b.toLowerCase().includes(`kievin kana`)) {
-              html += `<td class="kana"><div class="rainbow rainbow_text_animated">${b}</div></td>`;
-            } else {
-              html += `<td>${b}</td>`;
-            }
-          });
-          html += `</tr>`;
         });
-
-        html += `
-                </table>
-                <div class="bottom">
-                    <a href="https://github.com/MikkoKarvonen/pitskun-lounas2020" target="_blank">
-                        <div class="day badge">
-                            {}
-                        </div>
-                    </a>
-                </div>`;
       }
     })
-    .catch(err => {
+    .catch((err) => {
       console.log(err);
     });
 }
@@ -206,10 +109,15 @@ function getWeekNumber(d) {
   return weekNo;
 }
 
-app.get("/", function(req, res) {
-  res.send(html);
+app.get("/", function (req, res) {
+  res.render("index", {
+    title: "Hey",
+    message: "Hello there!",
+    courses: courses,
+    dayData: dayData,
+  });
 });
 
-app.listen(port, function() {
+app.listen(port, function () {
   console.log(`App listening on port ${port}`);
 });
