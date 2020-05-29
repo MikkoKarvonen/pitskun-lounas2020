@@ -2,21 +2,25 @@ const express = require("express");
 const port = process.env.PORT || 3000;
 const app = express();
 const fetch = require("node-fetch");
-var path = require("path");
 require("dotenv").config();
 app.set("view engine", "pug");
 
 let skipped = 0;
 let courses = [];
 let dayData = [];
-let html = "";
+const allCategories = [
+  "Kotiruoka",
+  "Vegaaninen kasvisruoka",
+  "Kasviskeitto",
+  "Jälkiruoka",
+];
 
 let date = new Date();
 while (date.getDay() == 0 || date.getDay() == 6) {
   date.setDate(date.getDate() + 1);
 }
 getMenu(date, 0);
-var dayInMilliseconds = 1000 * 60 * 60 * 24;
+var dayInMilliseconds = 1000 * 60 * 60 * 6;
 setInterval(function () {
   console.log(`Fetch data (${new Date()})`);
   html = ``;
@@ -33,11 +37,7 @@ function getMenu(d, index) {
       if (index == 0) {
         while (true) {
           let course = data.courses[i];
-          if (
-            course &&
-            course.category != "Delisalaatti" &&
-            course.category != "Green corner"
-          ) {
+          if (course && allCategories.includes(course.category)) {
             arr1.push(course.category);
           } else if (!course) {
             break;
@@ -50,7 +50,10 @@ function getMenu(d, index) {
 
       if (data.courses) {
         obj = {};
-        arr = [];
+        arr = {};
+        allCategories.map((e) => {
+          arr[e] = "";
+        });
         let dayTxt = d.toLocaleDateString("fi-FI", { weekday: "short" });
         obj.day = dayTxt[0].toUpperCase() + dayTxt.slice(1);
         obj.date = d.getDay();
@@ -59,12 +62,8 @@ function getMenu(d, index) {
         skipped = 0;
         while (true) {
           let course = data.courses[i];
-          if (
-            course &&
-            course.category != "Delisalaatti" &&
-            course.category != "Green corner"
-          ) {
-            arr.push(`${course.title_fi} (${course.properties})`);
+          if (course && allCategories.includes(course.category)) {
+            arr[course.category] = `${course.title_fi} (${course.properties})`;
           } else if (!course) {
             break;
           }
@@ -111,8 +110,6 @@ function getWeekNumber(d) {
 
 app.get("/", function (req, res) {
   res.render("index", {
-    title: "Hey",
-    message: "Hello there!",
     courses: courses,
     dayData: dayData,
   });
