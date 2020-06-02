@@ -34,19 +34,6 @@ function getMenu(d, index) {
     .then((data) => {
       let i = 1;
       arr1 = [];
-      if (index == 0) {
-        while (true) {
-          let course = data.courses[i];
-          if (course && allCategories.includes(course.category)) {
-            arr1.push(course.category);
-          } else if (!course) {
-            break;
-          }
-          i++;
-        }
-        i = 1;
-        courses = arr1;
-      }
 
       if (data.courses) {
         obj = {};
@@ -110,7 +97,7 @@ function getWeekNumber(d) {
 
 app.get("/", function (req, res) {
   res.render("index", {
-    courses: courses,
+    courses: allCategories,
     dayData: dayData,
   });
 });
