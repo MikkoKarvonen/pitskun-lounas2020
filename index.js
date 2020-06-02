@@ -2,11 +2,12 @@ const express = require("express");
 const port = process.env.PORT || 3000;
 const app = express();
 const fetch = require("node-fetch");
+const bodyParser = require("body-parser");
 require("dotenv").config();
 app.set("view engine", "pug");
+app.use(bodyParser.text({ type: "text/*" }));
 
 let skipped = 0;
-let courses = [];
 let dayData = [];
 const allCategories = [
   "Kotiruoka",
@@ -23,7 +24,6 @@ getMenu(date, 0);
 var dayInMilliseconds = 1000 * 60 * 60 * 6;
 setInterval(function () {
   console.log(`Fetch data (${new Date()})`);
-  html = ``;
   getMenu(date, 0);
 }, dayInMilliseconds);
 
@@ -102,6 +102,16 @@ app.get("/", function (req, res) {
     courses: allCategories,
     dayData: dayData,
   });
+});
+
+app.post("/update", (req, res) => {
+  if (req.body == process.env.UPDATE_SECRET) {
+    console.log(`Fetch data (${new Date()}) - update`);
+    getMenu(date, 0);
+    res.sendStatus(200);
+  } else {
+    res.sendStatus(404);
+  }
 });
 
 app.listen(port, function () {
