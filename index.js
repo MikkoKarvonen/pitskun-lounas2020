@@ -50,7 +50,9 @@ function getMenu(d, index) {
         while (true) {
           let course = data.courses[i];
           if (course && allCategories.includes(course.category)) {
-            arr[course.category] = `${course.title_fi} (${course.properties})`;
+            arr[course.category] = course.properties
+              ? `${course.title_fi} (${course.properties})`
+              : course.title_fi;
           } else if (!course) {
             break;
           }
