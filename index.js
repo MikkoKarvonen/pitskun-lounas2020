@@ -3,9 +3,12 @@ const port = process.env.PORT || 3000;
 const app = express();
 const fetch = require("node-fetch");
 const bodyParser = require("body-parser");
+var path = require("path");
+var favicon = require("serve-favicon");
 require("dotenv").config();
 app.set("view engine", "pug");
 app.use(bodyParser.text({ type: "text/*" }));
+app.use(favicon(path.join(__dirname, "/", "favicon.ico")));
 
 let skipped = 0;
 let dayData = [];
