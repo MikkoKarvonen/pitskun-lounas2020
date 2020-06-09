@@ -6,6 +6,7 @@ const bodyParser = require("body-parser");
 var path = require("path");
 var favicon = require("serve-favicon");
 require("dotenv").config();
+require("full-icu");
 app.set("view engine", "pug");
 app.use(bodyParser.text({ type: "text/*" }));
 app.use(favicon(path.join(__dirname, "/", "favicon.ico")));
