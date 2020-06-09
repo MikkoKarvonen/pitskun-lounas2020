@@ -107,13 +107,11 @@ app.get("/", function (req, res) {
   });
 });
 
-app.post("/update", (req, res) => {
-  if (req.body == process.env.UPDATE_SECRET) {
+app.get("/update/:id", (req, res) => {
+  if (req.params.id == process.env.UPDATE_SECRET) {
     console.log(`Fetch data (${new Date()}) - update`);
     getMenu(date, 0);
-    res.sendStatus(200);
-  } else {
-    res.sendStatus(404);
+    res.send("Fetching data...");
   }
 });
 
