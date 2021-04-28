@@ -15,7 +15,8 @@ let skipped = 0;
 let dayData = [];
 const allCategories = [
   "Kotiruoka",
-  "Vegaaninen kasvisruoka",
+  " Kasvisruoka",
+  "Grilli",
   "Kasviskeitto",
   "Jälkiruoka",
 ];
